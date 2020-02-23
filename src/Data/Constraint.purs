@@ -14,7 +14,8 @@ import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import Data.SudokuPuzzle (CellValue(..), SudokuPuzzle, isEmptyCell)
 import Data.Tuple (Tuple(..))
-import Matrix (get, getColumn, getRow, toIndexedArray, width)
+import Data.Unfoldable (unfoldr)
+import Matrix (Matrix, get, getColumn, getRow, height, toIndexedArray, width)
 
 -- | Indicates a row index in the SudokuPuzzle
 newtype RowIndex = RowIndex Int
@@ -99,8 +100,8 @@ validSolutionNoDiags puzzle =
     indexedArray = toIndexedArray puzzle
     allCellsFilled = all (not <<< isEmptyCell <<< _.value) indexedArray
     noDuplicatesFound array = null (uniqueArray (filterMap extractAndKeepInts array))
-    allRowsValid = all noDuplicatesFound (rows indexedArray)
-    allColumnsValid = all noDuplicatesFound (columns indexedArray)
+    allRowsValid = all noDuplicatesFound (rows puzzle)
+    allColumnsValid = all noDuplicatesFound (columns puzzle)
 
 validSolutionWithDiags :: SudokuPuzzle -> Boolean
 validSolutionWithDiags puzzle =
@@ -113,27 +114,19 @@ validSolutionWithDiags puzzle =
     indexedArray = toIndexedArray puzzle
     allCellsFilled = all (not <<< isEmptyCell <<< _.value) indexedArray
     noDuplicatesFound array = null (uniqueArray (filterMap extractAndKeepInts array))
-    allRowsValid = all noDuplicatesFound (rows indexedArray)
-    allColumnsValid = all noDuplicatesFound (columns indexedArray)
+    allRowsValid = all noDuplicatesFound (rows puzzle)
+    allColumnsValid = all noDuplicatesFound (columns puzzle)
     validDiagonalTopLeftBottomRight = uniqueDiagonalTopLBottomR puzzle == Just Nil
     validDiagonalTopRightBottomLeft = uniqueDiagonalTopRBottomL puzzle == Just Nil
 
-rows :: forall a. Array { x :: Int, y :: Int, value :: a } -> Array (Array a)
-rows indexedArray =
-  let
-    groupByY :: Map Int (Array a) -> { x :: Int, y :: Int, value :: a } -> Map Int (Array a)
-    groupByY groupMap nextRec =
-      insertWith (\old next -> old `alt` next) nextRec.y [nextRec.value] groupMap
+rows :: forall a. Matrix a -> Array (Array a)
+rows matrix =
+  0 # unfoldr \rowIndex -> do
+    row <- getRow rowIndex matrix
+    pure (Tuple row (rowIndex + 1))
 
-  in
-    fromFoldable $ values $ foldl groupByY M.empty indexedArray
-
-columns :: forall a. Array { x :: Int, y :: Int, value :: a } -> Array (Array a)
-columns indexedArray =
-  let
-    groupByX :: Map Int (Array a) -> { x :: Int, y :: Int, value :: a } -> Map Int (Array a)
-    groupByX groupMap nextRec =
-      insertWith (\old next -> old `alt` next) nextRec.x [nextRec.value] groupMap
-
-  in
-    fromFoldable $ values $ foldl groupByX M.empty indexedArray
+columns :: forall a. Matrix a -> Array (Array a)
+columns matrix =
+  0 # unfoldr \columnIndex -> do
+    column <- getColumn columnIndex matrix
+    pure (Tuple column (columnIndex + 1))
