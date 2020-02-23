@@ -2,7 +2,7 @@ module Test.Constraint where
 
 import Prelude
 
-import Data.Constraint (ColumnIndex(..), RowIndex(..), uniqueArray, uniqueColumn, uniqueDiagonalTopLBottomR, uniqueDiagonalTopRBottomL, uniqueIndices, uniqueRow)
+import Data.Constraint (ColumnIndex(..), RowIndex(..), uniqueArray, uniqueColumn, uniqueDiagonalTopLBottomR, uniqueDiagonalTopRBottomL, uniqueIndices, uniqueRow, validSolutionNoDiags, validSolutionWithDiags)
 import Data.List (List(..), (:))
 import Data.Maybe (Maybe(..), fromJust)
 import Data.SudokuPuzzle (CellValue(..), SudokuPuzzle)
@@ -112,6 +112,34 @@ spec = describe "Constraints" do
     it "a top-left to bottom-right diagonal with 1 or more duplicates" do
       (uniqueDiagonalTopRBottomL p2x2Fail) `shouldEqual` (Just ({number: 1, count: 2} : Nil))
 
+  describe "validSolutionNoDiags should work properly" do
+    let
+      p2x2Pass :: SudokuPuzzle
+      p2x2Pass = mkPuzzle [ [Original 2, Original 1 ]
+                          , [Guess    1, Guess    2 ]
+                          ]
+
+      p2x2Fail :: SudokuPuzzle
+      p2x2Fail = mkPuzzle [ [Original 2, Original 1 ]
+                          , [Guess    2, Guess    2 ]
+                          ]
+
+    it "a valid solution" do
+      (validSolutionNoDiags p2x2Pass) `shouldEqual` true
+    it "an invalid solution" do
+      (validSolutionNoDiags p2x2Fail) `shouldEqual` false
+
+  describe "validSolutionWithDiags should work properly" do
+    let
+      p2x2Pass :: SudokuPuzzle
+      p2x2Pass = mkPuzzle [ [Original 1, Original 2, Original 3, Original 4 ]
+                          , [Guess    3, Guess    4, Guess    1, Guess    2 ]
+                          , [Guess    4, Guess    3, Guess    2, Guess    1 ]
+                          , [Guess    2, Guess    1, Guess    4, Guess    3 ]
+                          ]
+
+    it "a valid solution" do
+      (validSolutionWithDiags p2x2Pass) `shouldEqual` true
 
 mkPuzzle :: Array (Array CellValue) -> SudokuPuzzle
 mkPuzzle array = unsafePartial $ fromJust $ fromArray array

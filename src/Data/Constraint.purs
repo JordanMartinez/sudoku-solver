@@ -2,18 +2,19 @@ module Data.Constraint where
 
 import Prelude
 
-import Data.Array ((..))
+import Control.Alt (alt)
+import Data.Array (all, fromFoldable, (..))
 import Data.Filterable (filterMap)
 import Data.Foldable (foldl)
 import Data.FoldableWithIndex (foldlWithIndex)
-import Data.List (List(..), reverse, (:))
-import Data.Map (Map, insertWith)
+import Data.List (List(..), null, reverse, (:))
+import Data.Map (Map, insertWith, values)
 import Data.Map as M
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
-import Data.SudokuPuzzle (CellValue(..), SudokuPuzzle)
+import Data.SudokuPuzzle (CellValue(..), SudokuPuzzle, isEmptyCell)
 import Data.Tuple (Tuple(..))
-import Matrix (get, getColumn, getRow, width)
+import Matrix (get, getColumn, getRow, toIndexedArray, width)
 
 -- | Indicates a row index in the SudokuPuzzle
 newtype RowIndex = RowIndex Int
@@ -85,3 +86,54 @@ uniqueDiagonalTopRBottomL puzzle =
   where
     size = width puzzle
     indexArray = (0 .. size) <#> (\i -> Tuple (RowIndex i) (ColumnIndex (size - i - 1)))
+
+noEmptyCells :: Array CellValue -> Boolean
+noEmptyCells = all (not <<< isEmptyCell)
+
+validSolutionNoDiags :: SudokuPuzzle -> Boolean
+validSolutionNoDiags puzzle =
+  allCellsFilled
+  && allRowsValid
+  && allColumnsValid
+  where
+    indexedArray = toIndexedArray puzzle
+    allCellsFilled = all (not <<< isEmptyCell <<< _.value) indexedArray
+    noDuplicatesFound array = null (uniqueArray (filterMap extractAndKeepInts array))
+    allRowsValid = all noDuplicatesFound (rows indexedArray)
+    allColumnsValid = all noDuplicatesFound (columns indexedArray)
+
+validSolutionWithDiags :: SudokuPuzzle -> Boolean
+validSolutionWithDiags puzzle =
+  allCellsFilled
+  && allRowsValid
+  && allColumnsValid
+  && validDiagonalTopLeftBottomRight
+  && validDiagonalTopRightBottomLeft
+  where
+    indexedArray = toIndexedArray puzzle
+    allCellsFilled = all (not <<< isEmptyCell <<< _.value) indexedArray
+    noDuplicatesFound array = null (uniqueArray (filterMap extractAndKeepInts array))
+    allRowsValid = all noDuplicatesFound (rows indexedArray)
+    allColumnsValid = all noDuplicatesFound (columns indexedArray)
+    validDiagonalTopLeftBottomRight = uniqueDiagonalTopLBottomR puzzle == Just Nil
+    validDiagonalTopRightBottomLeft = uniqueDiagonalTopRBottomL puzzle == Just Nil
+
+rows :: forall a. Array { x :: Int, y :: Int, value :: a } -> Array (Array a)
+rows indexedArray =
+  let
+    groupByY :: Map Int (Array a) -> { x :: Int, y :: Int, value :: a } -> Map Int (Array a)
+    groupByY groupMap nextRec =
+      insertWith (\old next -> old `alt` next) nextRec.y [nextRec.value] groupMap
+
+  in
+    fromFoldable $ values $ foldl groupByY M.empty indexedArray
+
+columns :: forall a. Array { x :: Int, y :: Int, value :: a } -> Array (Array a)
+columns indexedArray =
+  let
+    groupByX :: Map Int (Array a) -> { x :: Int, y :: Int, value :: a } -> Map Int (Array a)
+    groupByX groupMap nextRec =
+      insertWith (\old next -> old `alt` next) nextRec.x [nextRec.value] groupMap
+
+  in
+    fromFoldable $ values $ foldl groupByX M.empty indexedArray
