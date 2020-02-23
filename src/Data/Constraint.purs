@@ -2,20 +2,19 @@ module Data.Constraint where
 
 import Prelude
 
-import Control.Alt (alt)
-import Data.Array (all, fromFoldable, (..))
+import Data.Array (all, (..))
 import Data.Filterable (filterMap)
 import Data.Foldable (foldl)
 import Data.FoldableWithIndex (foldlWithIndex)
 import Data.List (List(..), null, reverse, (:))
-import Data.Map (Map, insertWith, values)
+import Data.Map (Map, insertWith)
 import Data.Map as M
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import Data.SudokuPuzzle (CellValue(..), SudokuPuzzle, isEmptyCell)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (unfoldr)
-import Matrix (Matrix, get, getColumn, getRow, height, toIndexedArray, width)
+import Matrix (Matrix, get, getColumn, getRow, toIndexedArray, width)
 
 -- | Indicates a row index in the SudokuPuzzle
 newtype RowIndex = RowIndex Int
