@@ -61,8 +61,8 @@ uniqueRow (RowIndex idx) puzzle = do
 
 uniqueColumn :: ColumnIndex -> SudokuPuzzle -> Maybe (List Duplicate)
 uniqueColumn (ColumnIndex idx) puzzle = do
-  row <- getColumn idx puzzle
-  let realValues = filterMap extractAndKeepInts row
+  column <- getColumn idx puzzle
+  let realValues = filterMap extractAndKeepInts column
   pure (uniqueArray realValues)
 
 uniqueIndices :: Array (Tuple RowIndex ColumnIndex) -> SudokuPuzzle -> Maybe (List Duplicate)
