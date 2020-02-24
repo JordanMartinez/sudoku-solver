@@ -126,6 +126,13 @@ rows matrix =
 
 columns :: forall a. Matrix a -> Array (Array a)
 columns matrix =
-  0 # unfoldr \columnIndex -> do
-    column <- getColumn columnIndex matrix
-    pure (Tuple column (columnIndex + 1))
+  0 # unfoldr \columnIndex ->
+    let
+      oneColumn :: Array a
+      oneColumn = 0 # unfoldr \rowIndex -> do
+          el <- get columnIndex rowIndex matrix
+          pure (Tuple el (rowIndex + 1))
+    in
+      if Array.null oneColumn
+        then Nothing
+        else Just (Tuple oneColumn (columnIndex + 1))
