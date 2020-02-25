@@ -13,8 +13,7 @@ import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import Data.SudokuPuzzle (CellValue(..), SudokuPuzzle, isEmptyCell)
 import Data.Tuple (Tuple(..))
-import Data.Unfoldable (unfoldr)
-import Matrix (Matrix, get, getColumn, getRow, toIndexedArray, width)
+import Matrix (columns, get, getColumn, getRow, rows, toIndexedArray, width)
 
 -- | Indicates a row index in the SudokuPuzzle
 newtype RowIndex = RowIndex Int
@@ -117,22 +116,3 @@ validSolutionWithDiags puzzle =
     allColumnsValid = all noDuplicatesFound (columns puzzle)
     validDiagonalTopLeftBottomRight = uniqueDiagonalTopLBottomR puzzle == Just Nil
     validDiagonalTopRightBottomLeft = uniqueDiagonalTopRBottomL puzzle == Just Nil
-
-rows :: forall a. Matrix a -> Array (Array a)
-rows matrix =
-  0 # unfoldr \rowIndex -> do
-    row <- getRow rowIndex matrix
-    pure (Tuple row (rowIndex + 1))
-
-columns :: forall a. Matrix a -> Array (Array a)
-columns matrix =
-  0 # unfoldr \columnIndex ->
-    let
-      oneColumn :: Array a
-      oneColumn = 0 # unfoldr \rowIndex -> do
-          el <- get columnIndex rowIndex matrix
-          pure (Tuple el (rowIndex + 1))
-    in
-      if Array.null oneColumn
-        then Nothing
-        else Just (Tuple oneColumn (columnIndex + 1))
