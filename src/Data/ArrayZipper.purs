@@ -2,15 +2,21 @@ module Data.ArrayZipper where
 
 import Prelude
 
-import Data.Array (length, unsafeIndex)
+import Data.Array (length, mapWithIndex, unsafeIndex)
 import Data.Foldable (class Foldable, foldMapDefaultL, foldl, foldr)
+import Data.FoldableWithIndex (class FoldableWithIndex, foldMapWithIndex, foldlWithIndex, foldrWithIndex)
+import Data.FunctorWithIndex (class FunctorWithIndex)
 import Data.Maybe (Maybe(..))
 import Data.Traversable (class Traversable, sequenceDefault, traverse)
+import Data.TraversableWithIndex (class TraversableWithIndex, traverseWithIndex)
 import Partial.Unsafe (unsafePartial)
 
 newtype ArrayZipper a = ArrayZipper { array :: Array a, focusIndex :: Int, maxIndex :: Int }
 
 derive instance functorArrayZipper :: Functor ArrayZipper
+
+instance functorWithIndex :: FunctorWithIndex Int ArrayZipper where
+  mapWithIndex f (ArrayZipper r) = ArrayZipper r { array = mapWithIndex f r.array }
 
 instance foldableArrayZipper :: Foldable ArrayZipper where
   foldl f init (ArrayZipper r) = foldl f init r.array
@@ -19,12 +25,24 @@ instance foldableArrayZipper :: Foldable ArrayZipper where
 
   foldMap = foldMapDefaultL
 
+instance foldableWithIndex :: FoldableWithIndex Int ArrayZipper where
+  foldlWithIndex f init (ArrayZipper r) = foldlWithIndex f init r.array
+
+  foldrWithIndex f last (ArrayZipper r) = foldrWithIndex f last r.array
+
+  foldMapWithIndex f (ArrayZipper r) = foldMapWithIndex f r.array
+
 instance traversableArrayZipper :: Traversable ArrayZipper where
   traverse f (ArrayZipper r) = ado
     ar <- traverse f r.array
     in (ArrayZipper r { array = ar })
 
   sequence = sequenceDefault
+
+instance traversableWithIndex :: TraversableWithIndex Int ArrayZipper where
+  traverseWithIndex f (ArrayZipper r) = ado
+    ar <- traverseWithIndex f r.array
+    in (ArrayZipper r { array = ar })
 
 asArrayZipper :: forall a. a -> ArrayZipper a
 asArrayZipper a = ArrayZipper { array: [a], focusIndex: 0, maxIndex: 0 }
