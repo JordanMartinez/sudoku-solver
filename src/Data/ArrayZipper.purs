@@ -84,18 +84,18 @@ next (ArrayZipper r)
   | r.focusIndex + 1 <= r.maxIndex = Just (ArrayZipper r { focusIndex = r.focusIndex + 1 })
   | otherwise = Nothing
 
-shiftBy :: forall a. (Int -> Int) -> ArrayZipper a -> Maybe (ArrayZipper a)
-shiftBy f (ArrayZipper r) =
+shiftFocusBy :: forall a. (Int -> Int) -> ArrayZipper a -> Maybe (ArrayZipper a)
+shiftFocusBy f (ArrayZipper r) =
   let updatedFocusIndex = f r.focusIndex
   in if updatedFocusIndex > 0 && updatedFocusIndex <= r.maxIndex
       then Just (ArrayZipper r { focusIndex = updatedFocusIndex })
       else Nothing
 
-shiftToFirst :: forall a. ArrayZipper a -> ArrayZipper a
-shiftToFirst (ArrayZipper r) = ArrayZipper r { focusIndex = 0 }
+shiftFocusFirst :: forall a. ArrayZipper a -> ArrayZipper a
+shiftFocusFirst (ArrayZipper r) = ArrayZipper r { focusIndex = 0 }
 
-shiftToLast :: forall a. ArrayZipper a -> ArrayZipper a
-shiftToLast (ArrayZipper r) = ArrayZipper r { focusIndex = r.maxIndex }
+shiftFocusLast :: forall a. ArrayZipper a -> ArrayZipper a
+shiftFocusLast (ArrayZipper r) = ArrayZipper r { focusIndex = r.maxIndex }
 
 foreign import unsafeInsertAt :: forall a. Int -> a -> Array a -> Array a
 foreign import unsafeSetAt :: forall a. Int -> a -> Array a -> Array a
