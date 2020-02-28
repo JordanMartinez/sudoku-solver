@@ -1,4 +1,32 @@
-module Data.ArrayZipper where
+module Data.ArrayZipper
+  ( ArrayZipper -- constructor not exported intentionally
+  , asArrayZipper
+  , toArrayZipperFirst
+  , toArrayZipperLast
+  , toArrayZipperAt
+  , toArrayZipperAt'
+
+  , hasPrev
+  , hasNext
+
+  , prev
+  , next
+
+  , shiftFocusBy
+  , shiftFocusBy'
+  , shiftFocusFirst
+  , shiftFocusLast
+
+  , getFocus
+  , setFocus
+  , modifyFocus
+
+  , pushPrev
+  , pushNext
+  , pushPrevRefocus
+  , pushNextRefocus
+  )
+  where
 
 import Prelude
 
