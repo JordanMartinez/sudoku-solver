@@ -126,6 +126,10 @@ toArrayZipperAt' focusIndex = case _ of
         then Just (ArrayZipper { array, focusIndex, maxIndex })
         else Nothing
 
+-- | Exposes the underlying array
+asArray :: forall a. ArrayZipper a -> Array a
+asArray (ArrayZipper r) = r.array
+
 -- | Returns `true` if `prev` will return a `Just`
 hasPrev :: forall a. ArrayZipper a -> Boolean
 hasPrev (ArrayZipper r) = r.focusIndex > 0
