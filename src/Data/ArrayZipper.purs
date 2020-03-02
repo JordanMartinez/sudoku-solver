@@ -6,6 +6,8 @@ module Data.ArrayZipper
   , toArrayZipperAt
   , toArrayZipperAt'
 
+  , exposeArray
+
   , hasPrev
   , hasNext
 
@@ -127,8 +129,8 @@ toArrayZipperAt' focusIndex = case _ of
         else Nothing
 
 -- | Exposes the underlying array
-asArray :: forall a. ArrayZipper a -> Array a
-asArray (ArrayZipper r) = r.array
+exposeArray :: forall a. ArrayZipper a -> Array a
+exposeArray (ArrayZipper r) = r.array
 
 -- | Returns `true` if `prev` will return a `Just`
 hasPrev :: forall a. ArrayZipper a -> Boolean
