@@ -91,26 +91,28 @@ noEmptyCells = all (not <<< isEmptyCell)
 
 validSolutionNoDiags :: SudokuPuzzle -> Boolean
 validSolutionNoDiags puzzle =
-  allCellsFilled
-  && allRowsValid
+  (validPartialSolutionNoDiags puzzle) && (all (not <<< isEmptyCell) puzzle)
+
+validPartialSolutionNoDiags :: SudokuPuzzle -> Boolean
+validPartialSolutionNoDiags puzzle =
+  allRowsValid
   && allColumnsValid
   where
-    indexedArray = toIndexedArray puzzle
-    allCellsFilled = all (not <<< isEmptyCell <<< _.value) indexedArray
     noDuplicatesFound array = null (uniqueArray (filterMap extractAndKeepInts array))
     allRowsValid = all noDuplicatesFound (rows puzzle)
     allColumnsValid = all noDuplicatesFound (columns puzzle)
 
 validSolutionWithDiags :: SudokuPuzzle -> Boolean
 validSolutionWithDiags puzzle =
-  allCellsFilled
-  && allRowsValid
+  validPartialSolutionWithDiags puzzle && (all (not <<< isEmptyCell) puzzle)
+
+validPartialSolutionWithDiags :: SudokuPuzzle -> Boolean
+validPartialSolutionWithDiags puzzle =
+  allRowsValid
   && allColumnsValid
   && validDiagonalTopLeftBottomRight
   && validDiagonalTopRightBottomLeft
   where
-    indexedArray = toIndexedArray puzzle
-    allCellsFilled = all (not <<< isEmptyCell <<< _.value) indexedArray
     noDuplicatesFound array = null (uniqueArray (filterMap extractAndKeepInts array))
     allRowsValid = all noDuplicatesFound (rows puzzle)
     allColumnsValid = all noDuplicatesFound (columns puzzle)
