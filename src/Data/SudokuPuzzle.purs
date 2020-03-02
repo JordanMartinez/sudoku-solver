@@ -42,6 +42,14 @@ instance showCellValue :: Show CellValue where
 
 type SudokuPuzzle = Matrix CellValue
 
+puzzleSolved :: SudokuPuzzle
+puzzleSolved =
+  unsafePartial $ fromJust $ fromArray
+  --            0           1
+    [ [Original 1, Original 2]  -- 0
+    , [Original 2, Original 1]  -- 1
+    ]
+
 puzzle2x2 :: SudokuPuzzle
 puzzle2x2 =
   unsafePartial $ fromJust $ fromArray
