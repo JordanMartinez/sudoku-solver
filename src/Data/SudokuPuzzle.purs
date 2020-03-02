@@ -37,7 +37,7 @@ isGuessCell = case _ of
 instance showCellValue :: Show CellValue where
   show = case _ of
     Original i -> " " <> show i <> " "
-    Empty -> "   "
+    Empty -> " _ "
     Guess i -> "<" <> show i <> ">"
 
 type SudokuPuzzle = Matrix CellValue
