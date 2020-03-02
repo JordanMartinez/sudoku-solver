@@ -2,9 +2,9 @@ module Data.Constraint where
 
 import Prelude
 
-import Data.Array (all, (..))
+import Data.Array ((..))
 import Data.Filterable (filterMap)
-import Data.Foldable (foldl)
+import Data.Foldable (foldl, all)
 import Data.FoldableWithIndex (foldlWithIndex)
 import Data.List (List(..), null, reverse, (:))
 import Data.Map (Map, insertWith)
@@ -13,7 +13,7 @@ import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import Data.SudokuPuzzle (CellValue(..), SudokuPuzzle, isEmptyCell)
 import Data.Tuple (Tuple(..))
-import Matrix (columns, get, getColumn, getRow, rows, toIndexedArray, width)
+import Matrix (columns, get, getColumn, getRow, rows, width)
 
 -- | Indicates a row index in the SudokuPuzzle
 newtype RowIndex = RowIndex Int
@@ -77,14 +77,14 @@ uniqueDiagonalTopLBottomR :: SudokuPuzzle -> Maybe (List Duplicate)
 uniqueDiagonalTopLBottomR puzzle =
   uniqueIndices indexArray puzzle
   where
-    indexArray = (0 .. (width puzzle)) <#> (\i -> Tuple (RowIndex i) (ColumnIndex i))
+    indexArray = (0 .. ((width puzzle) - 1)) <#> (\i -> Tuple (RowIndex i) (ColumnIndex i))
 
 uniqueDiagonalTopRBottomL :: SudokuPuzzle -> Maybe (List Duplicate)
 uniqueDiagonalTopRBottomL puzzle =
   uniqueIndices indexArray puzzle
   where
-    size = width puzzle
-    indexArray = (0 .. size) <#> (\i -> Tuple (RowIndex i) (ColumnIndex (size - i - 1)))
+    lastIndex = width puzzle - 1
+    indexArray = (0 .. lastIndex) <#> (\i -> Tuple (RowIndex i) (ColumnIndex (lastIndex - i)))
 
 noEmptyCells :: Array CellValue -> Boolean
 noEmptyCells = all (not <<< isEmptyCell)
