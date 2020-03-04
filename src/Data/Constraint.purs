@@ -117,6 +117,18 @@ partialAllRowsValid = all noDuplicatesFound <<< rows
 partialAllColumnsValid :: SudokuPuzzle -> Boolean
 partialAllColumnsValid = all noDuplicatesFound <<< columns
 
+partialAllGridsValid :: SudokuPuzzle -> Boolean
+partialAllGridsValid puzzle = all (\g -> (Just Nil) == (uniqueGrid g puzzle)) grids
+  where
+    gridSize = (floor (sqrt (toNumber (width puzzle)))) - 1
+    maxIndex = gridSize - 1
+
+    grids :: Array (Tuple RowIndex ColumnIndex)
+    grids = do
+      let array = map (_ * gridSize) (0 .. maxIndex)
+      r <- array
+      c <- array
+      pure (Tuple (RowIndex r) (ColumnIndex c))
 
 partialTopLBottomR :: SudokuPuzzle -> Boolean
 partialTopLBottomR puzzle = uniqueDiagonalTopLBottomR puzzle == Just Nil
