@@ -117,35 +117,34 @@ uniqueDiagonalTopRBottomL puzzle =
     lastIndex = width puzzle - 1
     indexArray = (0 .. lastIndex) <#> (\i -> Tuple (RowIndex i) (ColumnIndex (lastIndex - i)))
 
-noEmptyCells :: Array CellValue -> Boolean
+noEmptyCells :: SudokuPuzzle -> Boolean
 noEmptyCells = all (not <<< isEmptyCell)
 
+noDuplicatesFound :: Array CellValue -> Boolean
+noDuplicatesFound array = null (uniqueArray (filterMap extractAndKeepInts array))
+
+partialAllRowsValid :: SudokuPuzzle -> Boolean
+partialAllRowsValid = all noDuplicatesFound <<< rows
+
+partialAllColumnsValid :: SudokuPuzzle -> Boolean
+partialAllColumnsValid = all noDuplicatesFound <<< columns
+
+partialValidTopLBottomR :: SudokuPuzzle -> Boolean
+partialValidTopLBottomR puzzle = uniqueDiagonalTopLBottomR puzzle == Just Nil
+
+partialValidTopRBottomL :: SudokuPuzzle -> Boolean
+partialValidTopRBottomL puzzle = uniqueDiagonalTopRBottomL puzzle == Just Nil
+
 validSolutionNoDiags :: SudokuPuzzle -> Boolean
-validSolutionNoDiags puzzle =
-  (validPartialSolutionNoDiags puzzle) && (all (not <<< isEmptyCell) puzzle)
+validSolutionNoDiags = noEmptyCells && validPartialSolutionNoDiags
 
 validPartialSolutionNoDiags :: SudokuPuzzle -> Boolean
-validPartialSolutionNoDiags puzzle =
-  allRowsValid
-  && allColumnsValid
-  where
-    noDuplicatesFound array = null (uniqueArray (filterMap extractAndKeepInts array))
-    allRowsValid = all noDuplicatesFound (rows puzzle)
-    allColumnsValid = all noDuplicatesFound (columns puzzle)
+validPartialSolutionNoDiags =
+  partialAllRowsValid && partialAllColumnsValid
 
 validSolutionWithDiags :: SudokuPuzzle -> Boolean
-validSolutionWithDiags puzzle =
-  validPartialSolutionWithDiags puzzle && (all (not <<< isEmptyCell) puzzle)
+validSolutionWithDiags = noEmptyCells && validPartialSolutionWithDiags
 
 validPartialSolutionWithDiags :: SudokuPuzzle -> Boolean
-validPartialSolutionWithDiags puzzle =
-  allRowsValid
-  && allColumnsValid
-  && validDiagonalTopLeftBottomRight
-  && validDiagonalTopRightBottomLeft
-  where
-    noDuplicatesFound array = null (uniqueArray (filterMap extractAndKeepInts array))
-    allRowsValid = all noDuplicatesFound (rows puzzle)
-    allColumnsValid = all noDuplicatesFound (columns puzzle)
-    validDiagonalTopLeftBottomRight = uniqueDiagonalTopLBottomR puzzle == Just Nil
-    validDiagonalTopRightBottomLeft = uniqueDiagonalTopRBottomL puzzle == Just Nil
+validPartialSolutionWithDiags =
+  validPartialSolutionNoDiags && partialValidTopLBottomR && partialValidTopRBottomL
