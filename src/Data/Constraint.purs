@@ -79,29 +79,17 @@ uniqueIndices indexArray puzzle =
 uniqueGrid :: Tuple RowIndex ColumnIndex -> SudokuPuzzle -> Maybe (List Duplicate)
 uniqueGrid (Tuple (RowIndex row) (ColumnIndex col)) puzzle =
   let
-    gridLength = floor (sqrt (toNumber (width puzzle))) -- square root
-    rowStart = (row `quot` gridLength) * gridLength
-    rowEnd = rowStart + gridLength - 1
-    colStart = (col `quot` gridLength) * gridLength
-    colEnd = colStart + gridLength - 1
+    gridSize = floor (sqrt (toNumber (width puzzle))) -- square root
+    rowStart = (row `quot` gridSize) * gridSize
+    rowEnd = rowStart + gridSize - 1
+    colStart = (col `quot` gridSize) * gridSize
+    colEnd = colStart + gridSize - 1
 
-{-
-Given b => Add to array | Loop With
-0, 0    => 0, 0         | 0, 1
-0, 1    => 0, 1         | 0, 2
-0, 2    => 1, 0         | 1, 1
-1, 1    => 1, 1         | 1, 2
-1, 2    => Nothing
--}
     indices :: Array (Tuple RowIndex ColumnIndex)
-    indices =
-      (Tuple rowStart colStart) # unfoldr (\(Tuple rowIdx colIdx) ->
-        if colIdx <= colEnd
-        then Just (Tuple (Tuple (RowIndex rowIdx) (ColumnIndex colIdx)) (Tuple rowIdx (colIdx + 1)))
-        else if rowIdx < rowEnd
-          then Just (Tuple (Tuple (RowIndex (rowIdx + 1)) (ColumnIndex colStart)) (Tuple (rowIdx + 1) (colStart + 1)))
-          else Nothing
-      )
+    indices = do
+      r <- rowStart .. rowEnd
+      c <- colStart .. colEnd
+      pure (Tuple (RowIndex r) (ColumnIndex c))
   in uniqueIndices indices puzzle
 
 uniqueDiagonalTopLBottomR :: SudokuPuzzle -> Maybe (List Duplicate)
