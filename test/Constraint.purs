@@ -2,7 +2,7 @@ module Test.Constraint where
 
 import Prelude
 
-import Data.Constraint (ColumnIndex(..), RowIndex(..), uniqueArray, uniqueColumn, uniqueDiagonalTopLBottomR, uniqueDiagonalTopRBottomL, uniqueIndices, uniqueRow, validSolutionNoDiags, validSolutionWithDiags)
+import Data.Constraint (ColumnIndex(..), RowIndex(..), uniqueArray, uniqueColumn, uniqueDiagonalTopLBottomR, uniqueDiagonalTopRBottomL, uniqueGrid, uniqueIndices, uniqueRow, validSolutionNoDiags, validSolutionWithDiags)
 import Data.List (List(..), (:))
 import Data.Maybe (Maybe(..), fromJust)
 import Data.SudokuPuzzle (CellValue(..), SudokuPuzzle)
@@ -94,6 +94,41 @@ spec = describe "Constraints" do
       (uniqueDiagonalTopLBottomR p2x2Pass) `shouldEqual` (Just Nil)
     it "a top-left to bottom-right diagonal with 1 or more duplicates" do
       (uniqueDiagonalTopLBottomR p2x2Fail) `shouldEqual` (Just ({number: 1, count: 2} : Nil))
+
+  describe "uniqueGrid should work properly" do
+    let
+      -- | pass | fail |
+      -- +------+------+
+      -- | pass | fail |
+      p4x4 :: SudokuPuzzle
+      p4x4 = mkPuzzle [ [Original 1, Original 2, Original 1, Original 4 ]
+                      , [Guess    3, Guess    4, Guess    1, Guess    2 ]
+                      , [Guess    4, Guess    3, Guess    2, Guess    2 ]
+                      , [Guess    2, Guess    1, Guess    2, Guess    2 ]
+                      ]
+    it "top-left: no duplicates" do
+      (uniqueGrid (Tuple (RowIndex 0) (ColumnIndex 0)) p4x4) `shouldEqual` (Just Nil)
+      (uniqueGrid (Tuple (RowIndex 0) (ColumnIndex 1)) p4x4) `shouldEqual` (Just Nil)
+      (uniqueGrid (Tuple (RowIndex 1) (ColumnIndex 0)) p4x4) `shouldEqual` (Just Nil)
+      (uniqueGrid (Tuple (RowIndex 1) (ColumnIndex 1)) p4x4) `shouldEqual` (Just Nil)
+
+    it "bottom-left: no duplicates" do
+      (uniqueGrid (Tuple (RowIndex 2) (ColumnIndex 0)) p4x4) `shouldEqual` (Just Nil)
+      (uniqueGrid (Tuple (RowIndex 2) (ColumnIndex 1)) p4x4) `shouldEqual` (Just Nil)
+      (uniqueGrid (Tuple (RowIndex 3) (ColumnIndex 0)) p4x4) `shouldEqual` (Just Nil)
+      (uniqueGrid (Tuple (RowIndex 3) (ColumnIndex 1)) p4x4) `shouldEqual` (Just Nil)
+
+    it "top-right: duplicates" do
+      (uniqueGrid (Tuple (RowIndex 0) (ColumnIndex 2)) p4x4) `shouldEqual` (Just ({number: 1, count: 2} : Nil))
+      (uniqueGrid (Tuple (RowIndex 0) (ColumnIndex 3)) p4x4) `shouldEqual` (Just ({number: 1, count: 2} : Nil))
+      (uniqueGrid (Tuple (RowIndex 1) (ColumnIndex 2)) p4x4) `shouldEqual` (Just ({number: 1, count: 2} : Nil))
+      (uniqueGrid (Tuple (RowIndex 1) (ColumnIndex 3)) p4x4) `shouldEqual` (Just ({number: 1, count: 2} : Nil))
+
+    it "bottom-right: duplicates" do
+      (uniqueGrid (Tuple (RowIndex 2) (ColumnIndex 2)) p4x4) `shouldEqual` (Just ({number: 2, count: 4} : Nil))
+      (uniqueGrid (Tuple (RowIndex 2) (ColumnIndex 3)) p4x4) `shouldEqual` (Just ({number: 2, count: 4} : Nil))
+      (uniqueGrid (Tuple (RowIndex 3) (ColumnIndex 2)) p4x4) `shouldEqual` (Just ({number: 2, count: 4} : Nil))
+      (uniqueGrid (Tuple (RowIndex 3) (ColumnIndex 3)) p4x4) `shouldEqual` (Just ({number: 2, count: 4} : Nil))
 
   describe "uniqueDiagonalTopRBottomL should work properly" do
     let

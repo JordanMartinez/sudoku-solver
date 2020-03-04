@@ -6,13 +6,16 @@ import Data.Array ((..))
 import Data.Filterable (filterMap)
 import Data.Foldable (foldl, all)
 import Data.FoldableWithIndex (foldlWithIndex)
+import Data.Int (floor, quot, rem, toNumber)
 import Data.List (List(..), null, reverse, (:))
 import Data.Map (Map, insertWith)
 import Data.Map as M
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
-import Data.SudokuPuzzle (CellValue(..), SudokuPuzzle, isEmptyCell)
+import Data.SudokuPuzzle (CellValue(..), SudokuPuzzle, isEmptyCell, puzzle2x2)
 import Data.Tuple (Tuple(..))
+import Data.Unfoldable (unfoldr)
+import Math (sqrt)
 import Matrix (columns, get, getColumn, getRow, rows, width)
 
 -- | Indicates a row index in the SudokuPuzzle
@@ -72,6 +75,34 @@ uniqueIndices indexArray puzzle =
       Tuple (RowIndex rowIdx) (ColumnIndex colIdx) -> do
         value <- get colIdx rowIdx puzzle
         extractAndKeepInts value
+
+uniqueGrid :: Tuple RowIndex ColumnIndex -> SudokuPuzzle -> Maybe (List Duplicate)
+uniqueGrid (Tuple (RowIndex row) (ColumnIndex col)) puzzle =
+  let
+    gridLength = floor (sqrt (toNumber (width puzzle))) -- square root
+    rowStart = (row `quot` gridLength) * gridLength
+    rowEnd = rowStart + gridLength - 1
+    colStart = (col `quot` gridLength) * gridLength
+    colEnd = colStart + gridLength - 1
+
+{-
+Given b => Add to array | Loop With
+0, 0    => 0, 0         | 0, 1
+0, 1    => 0, 1         | 0, 2
+0, 2    => 1, 0         | 1, 1
+1, 1    => 1, 1         | 1, 2
+1, 2    => Nothing
+-}
+    indices :: Array (Tuple RowIndex ColumnIndex)
+    indices =
+      (Tuple rowStart colStart) # unfoldr (\(Tuple rowIdx colIdx) ->
+        if colIdx <= colEnd
+        then Just (Tuple (Tuple (RowIndex rowIdx) (ColumnIndex colIdx)) (Tuple rowIdx (colIdx + 1)))
+        else if rowIdx < rowEnd
+          then Just (Tuple (Tuple (RowIndex (rowIdx + 1)) (ColumnIndex colStart)) (Tuple (rowIdx + 1) (colStart + 1)))
+          else Nothing
+      )
+  in uniqueIndices indices puzzle
 
 uniqueDiagonalTopLBottomR :: SudokuPuzzle -> Maybe (List Duplicate)
 uniqueDiagonalTopLBottomR puzzle =
