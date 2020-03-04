@@ -129,22 +129,23 @@ partialAllRowsValid = all noDuplicatesFound <<< rows
 partialAllColumnsValid :: SudokuPuzzle -> Boolean
 partialAllColumnsValid = all noDuplicatesFound <<< columns
 
-partialValidTopLBottomR :: SudokuPuzzle -> Boolean
-partialValidTopLBottomR puzzle = uniqueDiagonalTopLBottomR puzzle == Just Nil
 
-partialValidTopRBottomL :: SudokuPuzzle -> Boolean
-partialValidTopRBottomL puzzle = uniqueDiagonalTopRBottomL puzzle == Just Nil
+partialTopLBottomR :: SudokuPuzzle -> Boolean
+partialTopLBottomR puzzle = uniqueDiagonalTopLBottomR puzzle == Just Nil
 
-validSolutionNoDiags :: SudokuPuzzle -> Boolean
-validSolutionNoDiags = noEmptyCells && validPartialSolutionNoDiags
+partialTopRBottomL :: SudokuPuzzle -> Boolean
+partialTopRBottomL puzzle = uniqueDiagonalTopRBottomL puzzle == Just Nil
 
-validPartialSolutionNoDiags :: SudokuPuzzle -> Boolean
-validPartialSolutionNoDiags =
-  partialAllRowsValid && partialAllColumnsValid
+fullSolutionNoDiags :: SudokuPuzzle -> Boolean
+fullSolutionNoDiags = noEmptyCells && partialSolutionNoDiags
 
-validSolutionWithDiags :: SudokuPuzzle -> Boolean
-validSolutionWithDiags = noEmptyCells && validPartialSolutionWithDiags
+partialSolutionNoDiags :: SudokuPuzzle -> Boolean
+partialSolutionNoDiags =
+  partialAllRowsValid && partialAllColumnsValid && partialAllGridsValid
 
-validPartialSolutionWithDiags :: SudokuPuzzle -> Boolean
-validPartialSolutionWithDiags =
-  validPartialSolutionNoDiags && partialValidTopLBottomR && partialValidTopRBottomL
+fullSolutionWithDiags :: SudokuPuzzle -> Boolean
+fullSolutionWithDiags = noEmptyCells && partialSolutionWithDiags
+
+partialSolutionWithDiags :: SudokuPuzzle -> Boolean
+partialSolutionWithDiags =
+  partialSolutionNoDiags && partialTopLBottomR && partialTopRBottomL

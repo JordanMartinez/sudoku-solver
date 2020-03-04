@@ -2,7 +2,7 @@ module Test.Constraint where
 
 import Prelude
 
-import Data.Constraint (ColumnIndex(..), RowIndex(..), uniqueArray, uniqueColumn, uniqueDiagonalTopLBottomR, uniqueDiagonalTopRBottomL, uniqueGrid, uniqueIndices, uniqueRow, validSolutionNoDiags, validSolutionWithDiags)
+import Data.Constraint (ColumnIndex(..), RowIndex(..), partialAllGridsValid, uniqueArray, uniqueColumn, uniqueDiagonalTopLBottomR, uniqueDiagonalTopRBottomL, uniqueGrid, uniqueIndices, uniqueRow, fullSolutionNoDiags, fullSolutionWithDiags)
 import Data.List (List(..), (:))
 import Data.Maybe (Maybe(..), fromJust)
 import Data.SudokuPuzzle (CellValue(..), SudokuPuzzle)
@@ -130,6 +130,26 @@ spec = describe "Constraints" do
       (uniqueGrid (Tuple (RowIndex 3) (ColumnIndex 2)) p4x4) `shouldEqual` (Just ({number: 2, count: 4} : Nil))
       (uniqueGrid (Tuple (RowIndex 3) (ColumnIndex 3)) p4x4) `shouldEqual` (Just ({number: 2, count: 4} : Nil))
 
+  describe "partialAllGridsValid should work properly" do
+    let
+      p4x4Pass :: SudokuPuzzle
+      p4x4Pass = mkPuzzle [ [Original 1, Original 2, Original 1, Original 4 ]
+                          , [Guess    3, Guess    4, Guess    3, Guess    2 ]
+                          , [Guess    4, Guess    3, Guess    4, Guess    2 ]
+                          , [Guess    2, Guess    1, Guess    3, Guess    1 ]
+                          ]
+
+      p4x4Fail :: SudokuPuzzle
+      p4x4Fail = mkPuzzle [ [Original 1, Original 2, Original 1, Original 4 ]
+                          , [Guess    3, Guess    4, Guess    3, Guess    2 ]
+                          , [Guess    4, Guess    3, Guess    4, Guess    2 ]
+                          , [Guess    1, Guess    1, Guess    5, Guess    1 ]
+                          ]
+    it "Expect failure" do
+      (partialAllGridsValid p4x4Pass) `shouldEqual` true
+    it "Expect pass" do
+      (partialAllGridsValid p4x4Fail) `shouldEqual` false
+
   describe "uniqueDiagonalTopRBottomL should work properly" do
     let
       p2x2Pass :: SudokuPuzzle
@@ -149,32 +169,36 @@ spec = describe "Constraints" do
 
   describe "validSolutionNoDiags should work properly" do
     let
-      p2x2Pass :: SudokuPuzzle
-      p2x2Pass = mkPuzzle [ [Original 2, Original 1 ]
-                          , [Guess    1, Guess    2 ]
+      p4x4Pass :: SudokuPuzzle
+      p4x4Pass = mkPuzzle [ [Original 1, Original 2, Original 3, Original 4 ]
+                          , [Guess    4, Guess    3, Guess    2, Guess    1 ]
+                          , [Guess    3, Guess    1, Guess    4, Guess    2 ]
+                          , [Guess    2, Guess    4, Guess    1, Guess    3 ]
                           ]
 
-      p2x2Fail :: SudokuPuzzle
-      p2x2Fail = mkPuzzle [ [Original 2, Original 1 ]
-                          , [Guess    2, Guess    2 ]
+      p4x4Fail :: SudokuPuzzle
+      p4x4Fail = mkPuzzle [ [Original 1, Original 2, Original 1, Original 4 ]
+                          , [Guess    3, Guess    4, Guess    3, Guess    2 ]
+                          , [Guess    4, Guess    3, Guess    4, Guess    2 ]
+                          , [Guess    1, Guess    1, Guess    5, Guess    1 ]
                           ]
 
     it "a valid solution" do
-      (validSolutionNoDiags p2x2Pass) `shouldEqual` true
+      (fullSolutionNoDiags p4x4Pass) `shouldEqual` true
     it "an invalid solution" do
-      (validSolutionNoDiags p2x2Fail) `shouldEqual` false
+      (fullSolutionNoDiags p4x4Fail) `shouldEqual` false
 
   describe "validSolutionWithDiags should work properly" do
     let
-      p2x2Pass :: SudokuPuzzle
-      p2x2Pass = mkPuzzle [ [Original 1, Original 2, Original 3, Original 4 ]
-                          , [Guess    3, Guess    4, Guess    1, Guess    2 ]
-                          , [Guess    4, Guess    3, Guess    2, Guess    1 ]
-                          , [Guess    2, Guess    1, Guess    4, Guess    3 ]
+      p4x4Pass :: SudokuPuzzle
+      p4x4Pass = mkPuzzle [ [Original 1, Original 2, Original 4, Original 3 ]
+                          , [Guess    4, Guess    2, Guess    2, Guess    1 ]
+                          , [Guess    3, Guess    1, Guess    3, Guess    2 ]
+                          , [Guess    2, Guess    4, Guess    1, Guess    4 ]
                           ]
 
     it "a valid solution" do
-      (validSolutionWithDiags p2x2Pass) `shouldEqual` true
+      (fullSolutionWithDiags p4x4Pass) `shouldEqual` true
 
 mkPuzzle :: Array (Array CellValue) -> SudokuPuzzle
 mkPuzzle array = unsafePartial $ fromJust $ fromArray array
