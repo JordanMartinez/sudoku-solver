@@ -7,6 +7,8 @@ You can edit this file as you like.
   [ "console"
   , "effect"
   , "filterable"
+  , "integers"
+  , "math"
   , "matrices"
   , "ordered-collections"
   , "psci-support"
