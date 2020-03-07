@@ -11,7 +11,7 @@ import Prelude
 
 import Control.Monad.Rec.Class (Step(..), tailRec)
 import Data.Array ((..))
-import Data.ArrayZipper (ArrayZipper, getFocus, next, prev, setFocus, shiftFocusFirst, toArrayZipperFirst)
+import Data.Zipper.ArrayZipper (ArrayZipper, getFocus, next, prev, setFocus, shiftFocusFirst, toArrayZipperFirst)
 import Data.Constraint (partialSolutionNoDiags)
 import Data.Either (Either(..))
 import Data.Filterable (filterMap)

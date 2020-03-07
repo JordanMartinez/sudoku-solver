@@ -1,4 +1,4 @@
-module Data.ArrayZipper
+module Data.Zipper.ArrayZipper
   ( ArrayZipper -- constructor not exported intentionally
   , asArrayZipper
   , toArrayZipperFirst

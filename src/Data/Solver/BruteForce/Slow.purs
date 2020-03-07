@@ -6,7 +6,7 @@ module Data.Solver.BruteForce.Slow where
 import Prelude
 
 import Data.Array ((..))
-import Data.ArrayZipper (ArrayZipper, getFocus, next, toArrayZipperFirst)
+import Data.Zipper.ArrayZipper (ArrayZipper, getFocus, next, toArrayZipperFirst)
 import Data.Filterable (filterMap)
 import Data.Maybe (Maybe(..))
 import Data.SudokuPuzzle (CellValue(..), SudokuPuzzle)
