@@ -197,7 +197,7 @@ spec = describe "Constraints" do
     it "a top-left to bottom-right diagonal with 1 or more duplicates" do
       (uniqueDiagonalTopRBottomL p2x2Fail) `shouldEqual` (Just ({number: 1, count: 2} : Nil))
 
-  describe "validSolutionNoDiags should work properly" do
+  describe "fullSolutionNoDiags should work properly" do
     let
       p4x4Pass :: SudokuPuzzle
       p4x4Pass = mkPuzzle [ [Original 1, Original 2, Original 3, Original 4 ]
@@ -218,7 +218,7 @@ spec = describe "Constraints" do
     it "an invalid solution" do
       (fullSolutionNoDiags p4x4Fail) `shouldEqual` false
 
-  describe "validSolutionWithDiags should work properly" do
+  describe "fullSolutionWithDiags should work properly" do
     let
       p4x4Pass :: SudokuPuzzle
       p4x4Pass = mkPuzzle [ [Original 1, Original 2, Original 4, Original 3 ]
