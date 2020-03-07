@@ -4,7 +4,7 @@ I was challenged to write a program that can solve Sudoku puzzles in PureScript.
 
 ## Current Approach: Brute Force
 
-It utilizes a brute-force approach to solving the puzzle. The solver can be configured to check for any combination of the following:
+It utilizes a brute-force approach to solving the puzzle. An `Array` [Zipper](https://github.com/JordanMartinez/purescript-jordans-reference/blob/latestRelease/31-Design-Patterns/14-Zipper.md) was used to track which hole for which the solver is making a guess. The solver can be configured to check for any combination of the following:
 - all rows are unique
 - all columns are unique
 - all grids are unique
