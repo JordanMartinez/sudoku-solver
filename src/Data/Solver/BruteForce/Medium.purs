@@ -48,17 +48,15 @@ bruteForceMedium partialValidation p = case toArrayZipperFirst (findHoles p) of
 
 data StepError
   = InvalidHoleIndex
-  | NoMoreHoleBackTracking Hole
+  | NoMoreHoleBackTracking
 
 printStepError :: StepError -> String
 printStepError = case _ of
   InvalidHoleIndex ->
     "the impossible happened: we attempted to make a guess on \
     \a hole with an invalid index"
-  NoMoreHoleBackTracking { row, col, guesses } ->
-    "we iterated through all possibilities and could not find a valid solution. \
-    \Hole was blocked at (col,row) (" <> show col <> ", " <> show row <> ") where \
-    \current guess was: " <> show (getFocus guesses)
+  NoMoreHoleBackTracking ->
+    "We iterated through all possibilities and could not find a valid solution. "
 
 step :: StepState -> Step StepState (Either StepError SudokuPuzzle)
 step { partialValidation, puzzle, holes } =
@@ -90,7 +88,7 @@ resetHolesGuesses currentHole = resetGuessForHole
 backtrack :: StepState -> Step StepState (Either StepError SudokuPuzzle)
 backtrack { partialValidation, puzzle, holes:currentHole } =
   case prev (resetHolesGuesses currentHole) of
-      Nothing -> Done (Left (NoMoreHoleBackTracking (getFocus currentHole)))
+      Nothing -> Done (Left NoMoreHoleBackTracking)
       Just prevHole ->
         let
           prevHoleRec = getFocus prevHole
