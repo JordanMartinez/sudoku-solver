@@ -21,7 +21,8 @@ The code does not yet allow a user to input a puzzle (e.g. via CLI args or a fil
 The code does not pretty print the resulting puzzle back out in such a way that it looks like a Sudoku puzzle. However, the printed puzzle still indicates which number was the original number in the puzzle and which was a guess. Original numbers will have two spaces around them (e.g. ` 5 `) whereas guesses will have angled brackets around them (e.g. `<5>`). Any holes will be outputted as underscores with two spaces around them: ` _ `.
 
 The current brute-force code could be made faster by modifying the code in the following ways...
-- using a mutable `Array` in the underlying `ArrayZipper` (current approach uses an immutable copy-on-write `Array`)
+- using a mutable `Matrix` to store the puzzle's data (current approach uses an immutable copy-on-write flat `Array` that feels like a Matrix via its API)
+- using `ListZipper` rather than `ArrayZipper` for the Zipper used for hole-tracking, which is especially faster when resetting a hole's guesses (current approach uses the `ArrayZipper`, which will copy the entire array when updating a single hole in it)
 - calculating the constraints that each hole must satisfy and only validating a single guess with those constraints (current approach unnecessarily validates the entire puzzle on each guess)
 - using [`Aff`](https://pursuit.purescript.org/packages/purescript-aff/5.1.2/docs/Effect.Aff#t:Aff) to run 2+ concurrent fibers at the same time, stopping all fibers once any one of them finds a valid solution and killing the other two fibers
 
