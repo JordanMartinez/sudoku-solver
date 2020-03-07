@@ -2,6 +2,7 @@ module Main where
 
 import Prelude
 
+import Data.Constraint (partialSolutionNoDiags)
 import Data.Either (Either(..))
 import Data.Monoid (power)
 import Data.Solver.BruteForce.Medium (bruteForceMedium)
@@ -21,7 +22,7 @@ printPuzzleAndSolution msg puzzle = do
   log msg
   log $ show puzzle
   log $ power "=" (((width puzzle) * 3) + ((width puzzle) * 2) - 2)
-  case bruteForceMedium puzzle of
+  case bruteForceMedium partialSolutionNoDiags puzzle of
     Left e -> log $ show $ "Could not solve puzzle: " <> show e
     Right p -> log $ show p
   log "\n\n"

@@ -7,7 +7,6 @@ import Prelude
 
 import Data.Array ((..))
 import Data.ArrayZipper (ArrayZipper, getFocus, next, toArrayZipperFirst)
-import Data.Constraint (partialSolutionNoDiags)
 import Data.Filterable (filterMap)
 import Data.Maybe (Maybe(..))
 import Data.SudokuPuzzle (CellValue(..), SudokuPuzzle)
@@ -26,26 +25,26 @@ findHoles puzzle =
       Empty -> Just { row: rec.x, col: rec.y }
       _ -> Nothing
 
-bruteForceSlow :: SudokuPuzzle -> Array SudokuPuzzle
-bruteForceSlow puzzle =
+bruteForceSlow :: (SudokuPuzzle -> Boolean) -> SudokuPuzzle -> Array SudokuPuzzle
+bruteForceSlow validateSolution puzzle =
   let
     guesses = 1 .. (width puzzle)
     mbZipper = toArrayZipperFirst (findHoles puzzle)
   in case mbZipper of
     Nothing -> [puzzle] -- already solved
-    Just holes -> loop guesses puzzle holes
+    Just holes -> loop validateSolution guesses puzzle holes
 
-loop :: Array Int -> SudokuPuzzle -> ArrayZipper Hole -> Array SudokuPuzzle
-loop guesses currentPuzzle currentHole = do
+loop :: (SudokuPuzzle -> Boolean) -> Array Int -> SudokuPuzzle -> ArrayZipper Hole -> Array SudokuPuzzle
+loop validateSolution guesses currentPuzzle currentHole = do
   let { row, col } = getFocus currentHole
   guess <- guesses
   let modificationResult = set col row (Guess guess) currentPuzzle
   case modificationResult of
     Nothing -> []
     Just updatedPuzzle -> do
-      if (partialSolutionNoDiags updatedPuzzle)
+      if (validateSolution updatedPuzzle)
         then case next currentHole of
           Nothing -> pure updatedPuzzle
-          Just nextHole -> loop guesses updatedPuzzle nextHole
+          Just nextHole -> loop validateSolution guesses updatedPuzzle nextHole
         else
           []

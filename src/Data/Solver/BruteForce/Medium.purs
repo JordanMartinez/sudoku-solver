@@ -12,7 +12,7 @@ import Prelude
 import Control.Monad.Rec.Class (Step(..), tailRec)
 import Data.Array ((..))
 import Data.ArrayZipper (ArrayZipper, getFocus, next, prev, setFocus, shiftFocusFirst, toArrayZipperFirst)
-import Data.Constraint (partialSolutionNoDiags, fullSolutionNoDiags)
+import Data.Constraint (partialSolutionNoDiags)
 import Data.Either (Either(..))
 import Data.Filterable (filterMap)
 import Data.Maybe (Maybe(..), fromJust)
@@ -36,14 +36,15 @@ findHoles puzzle =
       Empty -> Just { row: rec.y, col: rec.x, guesses }
       _ -> Nothing
 
-type StepState = { puzzle :: SudokuPuzzle
+type StepState = { partialValidation :: SudokuPuzzle -> Boolean
+                 , puzzle :: SudokuPuzzle
                  , holes :: ArrayZipper Hole
                  }
 
-bruteForceMedium :: SudokuPuzzle -> Either StepError SudokuPuzzle
-bruteForceMedium p = case toArrayZipperFirst (findHoles p) of
+bruteForceMedium :: (SudokuPuzzle -> Boolean) -> SudokuPuzzle -> Either StepError SudokuPuzzle
+bruteForceMedium partialValidation p = case toArrayZipperFirst (findHoles p) of
   Nothing -> Right p -- already solved
-  Just holes -> tailRec step { puzzle:p, holes }
+  Just holes -> tailRec step { partialValidation, puzzle:p, holes }
 
 data StepError
   = InvalidHoleIndex
@@ -58,7 +59,7 @@ instance showStepError :: Show StepError where
       \current guess was: " <> show (getFocus guesses)
 
 step :: StepState -> Step StepState (Either StepError SudokuPuzzle)
-step { puzzle, holes } =
+step { partialValidation, puzzle, holes } =
   let
     holeRec = getFocus holes
     guess = getFocus holeRec.guesses
@@ -68,17 +69,14 @@ step { puzzle, holes } =
       if partialSolutionNoDiags updatedPuzzle
         then
           case next holes of
-            Nothing ->
-              if fullSolutionNoDiags updatedPuzzle
-                then Done (Right updatedPuzzle)
-                else backtrack puzzle holes
+            Nothing -> Done (Right updatedPuzzle)
             Just remainingHoles ->
-              Loop { puzzle: updatedPuzzle, holes: remainingHoles }
+              Loop { partialValidation, puzzle: updatedPuzzle, holes: remainingHoles }
         else
           case next holeRec.guesses of
             Just nextGuess ->
-              Loop { puzzle, holes: setFocus (holeRec { guesses = nextGuess }) holes }
-            Nothing -> backtrack puzzle holes
+              Loop { partialValidation, puzzle, holes: setFocus (holeRec { guesses = nextGuess }) holes }
+            Nothing -> backtrack { partialValidation, puzzle, holes }
 
 resetHolesGuesses :: ArrayZipper Hole -> ArrayZipper Hole
 resetHolesGuesses currentHole = resetGuessForHole
@@ -87,8 +85,8 @@ resetHolesGuesses currentHole = resetGuessForHole
   resetGuesses = shiftFocusFirst holeRec.guesses
   resetGuessForHole = setFocus (holeRec { guesses = resetGuesses }) currentHole
 
-backtrack :: SudokuPuzzle -> ArrayZipper Hole -> Step StepState (Either StepError SudokuPuzzle)
-backtrack puzzle currentHole =
+backtrack :: StepState -> Step StepState (Either StepError SudokuPuzzle)
+backtrack { partialValidation, puzzle, holes:currentHole } =
   case prev (resetHolesGuesses currentHole) of
       Nothing -> Done (Left (NoMoreHoleBackTracking (getFocus currentHole)))
       Just prevHole ->
@@ -98,8 +96,8 @@ backtrack puzzle currentHole =
           Nothing -> Done (Left InvalidHoleIndex)
           Just puzzleBeforeLastModification ->
             case next prevHoleRec.guesses of
-              Nothing -> backtrack puzzleBeforeLastModification prevHole
+              Nothing -> backtrack { partialValidation, puzzle: puzzleBeforeLastModification, holes: prevHole }
               Just remainingGuesses ->
                 let
                   updatedHole = setFocus (prevHoleRec { guesses = remainingGuesses}) prevHole
-                in Loop { puzzle: puzzleBeforeLastModification, holes: updatedHole }
+                in Loop { partialValidation, puzzle: puzzleBeforeLastModification, holes: updatedHole }
