@@ -170,14 +170,14 @@ spec = describe "Constraints" do
                           ]
 
       p4x4Fail :: SudokuPuzzle
-      p4x4Fail = mkPuzzle [ [Original 1, Original 2, Original 1, Original 4 ]
-                          , [Guess    3, Guess    4, Guess    3, Guess    2 ]
+      p4x4Fail = mkPuzzle [ [Original 1, Original 1, Original 1, Original 4 ]
+                          , [Guess    3, Guess    4, Guess    2, Guess    2 ]
                           , [Guess    4, Guess    3, Guess    4, Guess    2 ]
-                          , [Guess    1, Guess    1, Guess    5, Guess    1 ]
+                          , [Guess    1, Guess    1, Guess    2, Guess    1 ]
                           ]
-    it "Expect failure" do
-      (partialAllGridsValid p4x4Pass) `shouldEqual` true
     it "Expect pass" do
+      (partialAllGridsValid p4x4Pass) `shouldEqual` true
+    it "Expect failure" do
       (partialAllGridsValid p4x4Fail) `shouldEqual` false
 
   describe "uniqueDiagonalTopRBottomL should work properly" do
