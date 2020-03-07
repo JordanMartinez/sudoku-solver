@@ -5,7 +5,7 @@ import Prelude
 import Data.Constraint (partialSolutionNoDiags)
 import Data.Either (Either(..))
 import Data.Monoid (power)
-import Data.Solver.BruteForce.Medium (bruteForceMedium)
+import Data.Solver.BruteForce.Medium (bruteForceMedium, printStepError)
 import Data.SudokuPuzzle (SudokuPuzzle, puzzle2x2, puzzle9x9, puzzleSolved)
 import Effect (Effect)
 import Effect.Console (log)
@@ -23,6 +23,6 @@ printPuzzleAndSolution msg puzzle = do
   log $ show puzzle
   log $ power "=" (((width puzzle) * 3) + ((width puzzle) * 2) - 2)
   case bruteForceMedium partialSolutionNoDiags puzzle of
-    Left e -> log $ show $ "Could not solve puzzle: " <> show e
+    Left e -> log $ show $ "Could not solve puzzle: " <> printStepError e
     Right p -> log $ show p
   log "\n\n"

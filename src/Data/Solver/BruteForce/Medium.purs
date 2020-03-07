@@ -50,13 +50,15 @@ data StepError
   = InvalidHoleIndex
   | NoMoreHoleBackTracking Hole
 
-instance showStepError :: Show StepError where
-  show = case _ of
-    InvalidHoleIndex -> "the impossible happened: we attempted to make a guess on a hole with an invalid index"
-    NoMoreHoleBackTracking { row, col, guesses } ->
-      "we iterated through all possibilities and could not find a valid solution. \
-      \Hole was blocked at (col,row) (" <> show col <> ", " <> show row <> ") where \
-      \current guess was: " <> show (getFocus guesses)
+printStepError :: StepError -> String
+printStepError = case _ of
+  InvalidHoleIndex ->
+    "the impossible happened: we attempted to make a guess on \
+    \a hole with an invalid index"
+  NoMoreHoleBackTracking { row, col, guesses } ->
+    "we iterated through all possibilities and could not find a valid solution. \
+    \Hole was blocked at (col,row) (" <> show col <> ", " <> show row <> ") where \
+    \current guess was: " <> show (getFocus guesses)
 
 step :: StepState -> Step StepState (Either StepError SudokuPuzzle)
 step { partialValidation, puzzle, holes } =
