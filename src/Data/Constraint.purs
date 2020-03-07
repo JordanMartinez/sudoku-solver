@@ -14,7 +14,6 @@ import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import Data.SudokuPuzzle (CellValue(..), SudokuPuzzle, isEmptyCell)
 import Data.Tuple (Tuple(..))
-import Data.Unfoldable (unfoldr)
 import Math (sqrt)
 import Matrix (columns, get, getColumn, getRow, rows, width)
 
