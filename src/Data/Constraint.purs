@@ -120,12 +120,11 @@ partialAllColumnsValid = all noDuplicatesFound <<< columns
 partialAllGridsValid :: SudokuPuzzle -> Boolean
 partialAllGridsValid puzzle = all (\g -> (Just Nil) == (uniqueGrid g puzzle)) grids
   where
-    gridSize = (floor (sqrt (toNumber (width puzzle)))) - 1
-    maxIndex = gridSize - 1
+    gridSize = floor (sqrt (toNumber (width puzzle)))
 
     grids :: Array (Tuple RowIndex ColumnIndex)
     grids = do
-      let array = map (_ * gridSize) (0 .. maxIndex)
+      let array = map (_ * gridSize) (0 .. (gridSize - 1))
       r <- array
       c <- array
       pure (Tuple (RowIndex r) (ColumnIndex c))
